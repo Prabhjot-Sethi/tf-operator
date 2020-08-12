@@ -19,8 +19,43 @@ been always a limitation with kubernetes native rollout.
 
 #### Requirements
 With the problems identified it is desired to extend user-friendly lifecycle
-mangement support for Tungsten Fabric controller, that allows dependency managed
-deployment, upgrade and cluster scaling.
+mangement support for Tungsten Fabric controller, that allows to achieve
+* Converged deployment in Kubernetes environment
+  * Operator to replace helm-chart for Tungsten fabric and Kubernetes manifest
+  * Operator to handle deployment in any Kubernetes based environment like
+Openstack-helm and Airship.
+  * Essentially operator to be not limited to CNI solution
+* Allow provisions for Operator lifecycle manager catalog and install plan
+approach
+  * Allowing hosting operator on operatorhub
+* Deployment
+  * Operator should be capable of deploying TF cluster with High Availability
+  * Ease of deployment, Tungsten Fabric rollout needs to be simplified as much
+as possible by reducing information needed to rollout the deployment. Allowing
+faster adoption of Tungsten Fabric
+* Upgrade
+  * Upgrade should follow OLM (/like) process, no extra information to be
+required from administrator during upgrade, only an operator catalog (operator
+image, deployment and rbac) update should be enough to rollout the new release
+  * Allow patch release, rolling out only a specific component during upgrade,
+for example a release providing a patch only to config subsystem however other
+components/project remaining unaffected.
+* Internal dependency management while deployment or upgrade
+  * Tungsten Fabric has hard dependencies with respect to the order in which
+components are rollout or upgraded, operator need to ensure the process being
+followed
+  * On high level following order needs to be ensured
+    * Infra (Zookeeper/Cassandra/Redis/Kafka/RabbitMQ)
+    * Config nodes
+    * Control nodes
+    * Datapath components
+    * Analytics and web-ui
+* Auto-Scaling
+  * Unless overridden with configuration default approach should be auto-scale,
+where any master node joining can be considered to assume role controller role
+running all the tungsten fabric controller components, initially we can limit
+auto scale only to control nodes, web-ui and analytics.
+  * More advanced logic can be inducted at later stages
 
 # 3. Proposed solution
 Operator Framework provides an open source toolkit (operator-sdk) to manage
